@@ -1,0 +1,246 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.border.TitledBorder;
+// key inputs regestrieren WIP
+import java.awt.event.KeyEvent; 
+import java.awt.event.KeyListener.*;
+
+/**
+ *
+ * Beschreibung
+ *
+ * @version 1.0 vom 04.11.2025
+ * @joshua 
+ */
+
+public class SnakeGui extends JFrame {
+  // Anfang Attribute
+  // start attributes
+  private JPanel drawPanel;
+  private final int CELL_SIZE = 10;      // Größe eines Pixels/Zelle 
+  private final int GRID_WIDTH = 24;     // Anzahl der Zellen horizontal
+  private final int GRID_HEIGHT = 14;    // Anzahl der Zellen vertikal
+  private JButton btnup = new JButton();
+  private JButton btnLeft = new JButton();
+  private JButton btnRight = new JButton();
+  private JButton btnDown = new JButton();
+  private Timer timer;
+  private String direction="Right";
+  // ende der attribute
+  
+  
+  //objekt erstellen 
+  Snake snakeObjekt = new Snake();
+  private JLabel jlbGameover = new JLabel();
+  private JLabel lbHighscore = new JLabel();
+  private JButton btnRestart = new JButton();
+  // end attributes
+  
+  
+  
+  // Ende Attribute
+  
+  public SnakeGui() {     
+    // Frame init
+    super();
+    setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    int frameWidth = 305; 
+    int frameHeight = 402;
+    setSize(frameWidth, frameHeight);
+    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+    int x = (d.width - getSize().width) / 2;
+    int y = (d.height - getSize().height) / 2;
+    setLocation(x, y);
+    setTitle("SnakeGui");
+    setResizable(false);
+    Container cp = getContentPane();
+    cp.setLayout(null);
+    // start components
+    // Anfang Komponenten
+    //draw panel defeniren ig ? 
+    drawPanel = new JPanel() {
+      @Override
+      protected void paintComponent(Graphics g) {
+        
+        
+        super.paintComponent(g);
+        // Raster zeichnen
+        g.setColor(Color.LIGHT_GRAY);
+        for (int x = 0; x < GRID_WIDTH; x++) {
+          for (int y = 0; y < GRID_HEIGHT; y++) {
+            g.drawRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+          }
+        }
+        
+        // pixel in rot = schlange malen 
+        g.setColor(Color.RED);
+        for (SnakeSegment segment : snakeObjekt.getBody()){
+          g.fillRect(segment.getx() * CELL_SIZE, segment.gety() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        }
+        
+        //essen Pixel in blau
+        g.setColor(Color.BLUE);
+        g.fillRect(snakeObjekt.getFoodX() * CELL_SIZE, snakeObjekt.getFoodY() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        //neue pixel position 
+        // neuer Pixel?
+        
+        
+        
+        
+        
+        
+      }
+    };
+    drawPanel.setBounds(32, 8, 248, 144);
+    cp.add(drawPanel);
+    drawPanel.setBounds(16, 8, 248, 144);
+    drawPanel.setOpaque(false);
+    cp.add(drawPanel);
+    btnup.setBounds(104, 160, 80, 24);
+    btnup.setFont(new Font("Dialog", Font.BOLD, 11));
+    btnup.setText("↑");
+    btnup.setMargin(new Insets(2, 2, 2, 2));
+    btnup.addActionListener(new ActionListener() { 
+      public void actionPerformed(ActionEvent evt) { 
+        btnup_ActionPerformed(evt);
+      }
+    });
+    cp.add(btnup);
+    btnLeft.setBounds(24, 192, 80, 24);
+    btnLeft.setFont(new Font("Dialog", Font.BOLD, 11));
+    btnLeft.setText("←");
+    btnLeft.setMargin(new Insets(2, 2, 2, 2));
+    btnLeft.addActionListener(new ActionListener() { 
+      public void actionPerformed(ActionEvent evt) { 
+        btnLeft_ActionPerformed(evt);
+      }
+    });
+    cp.add(btnLeft);
+    btnRight.setBounds(184, 192, 80, 24);
+    btnRight.setFont(new Font("Dialog", Font.BOLD, 11));
+    btnRight.setText("→ ");
+    btnRight.setMargin(new Insets(2, 2, 2, 2));
+    btnRight.addActionListener(new ActionListener() { 
+      public void actionPerformed(ActionEvent evt) { 
+        btnRight_ActionPerformed(evt);
+      }
+    });
+    cp.add(btnRight);
+    btnDown.setBounds(104, 224, 80, 24);
+    btnDown.setFont(new Font("Dialog", Font.BOLD, 11));
+    btnDown.setText(" ↓");
+    btnDown.setMargin(new Insets(2, 2, 2, 2));
+    btnDown.addActionListener(new ActionListener() { 
+      public void actionPerformed(ActionEvent evt) { 
+        btnDown_ActionPerformed(evt);
+      }
+    });
+    cp.add(btnDown);
+    
+    
+    jlbGameover.setBounds(32, 272, 192, 32);
+    jlbGameover.setFont(new Font("Dialog", Font.BOLD, 11));
+    jlbGameover.setText("Text");
+    cp.add(jlbGameover);
+    lbHighscore.setBounds(32, 312, 192, 24);
+    lbHighscore.setFont(new Font("Dialog", Font.BOLD, 11));
+    lbHighscore.setText("Text");
+    cp.add(lbHighscore);
+    btnRestart.setBounds(96, 80, 80, 24);
+    btnRestart.setFont(new Font("Dialog", Font.BOLD, 11));
+    btnRestart.setText("RESTART");
+    btnRestart.setMargin(new Insets(2, 2, 2, 2));
+    //Button erstmal unsichtbar damit erst bei game ober gedrüct werden kann
+    btnRestart.setVisible(false);
+    btnRestart.addActionListener(new ActionListener() { 
+      public void actionPerformed(ActionEvent evt) { 
+        btnRestart_ActionPerformed(evt);
+      }
+    });
+    cp.add(btnRestart);
+    // end components
+    setVisible(true);
+    
+    this.setFocusable(true);
+    this.requestFocusInWindow();
+    
+    this.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyPressed(KeyEvent e) {
+        switch (e.getKeyCode()) {
+          case KeyEvent.VK_W, KeyEvent.VK_UP -> direction = "UP";
+          case KeyEvent.VK_S, KeyEvent.VK_DOWN -> direction = "DOWN";
+          case KeyEvent.VK_A, KeyEvent.VK_LEFT -> direction = "LEFT";
+          case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> direction = "RIGHT";
+        }
+      }
+    });
+    
+    timer = new Timer(200, e -> {
+      snakeObjekt.getScore();
+      snakeObjekt.moveSnake(direction);
+      drawPanel.repaint(); 
+      //score in console anzeigen
+      jlbGameover.setText(" " + snakeObjekt.getScore());
+      lbHighscore.setText("HIGHSCORE :" + snakeObjekt.getHighscore());
+      if (snakeObjekt.hitWall()) {
+        timer.stop();
+        jlbGameover.setText("GAME OVER");
+        //hier button sichtbar
+        btnRestart.setVisible(true);  
+      } // end of if
+    });
+    
+    timer.start();
+    
+    setVisible(true);
+    
+    
+  } // end of public SnakeGui
+  
+  
+  // Anfang Methoden
+  
+  // start methods
+  public static void main(String[] args) {
+    new SnakeGui();
+  } // end of main
+  
+  public void btnup_ActionPerformed(ActionEvent evt) {
+    // nach oben 
+    direction= "UP";
+    
+  } // end of btnup_ActionPerformed
+
+  public void btnLeft_ActionPerformed(ActionEvent evt) {
+    // nach Links
+    direction = "LEFT";
+    
+  } // end of btnLeft_ActionPerformed
+
+  public void btnRight_ActionPerformed(ActionEvent evt) {
+    // nach rechts 
+    direction = "RIGHT";
+    
+  } // end of btnRight_ActionPerformed
+
+  public void btnDown_ActionPerformed(ActionEvent evt) {
+    // nach unten 
+    direction = "DOWN";
+    
+  } // end of btnDown_ActionPerformed
+
+  // Ende Methoden
+  public void btnRestart_ActionPerformed(ActionEvent evt) {
+    // TODO add your code here 
+    System.out.println("knopf wurde gedrückt");   
+    snakeObjekt.restart();
+    timer.start();
+    btnRestart.setVisible(false);
+    direction = "RIGHT";
+  } // end of btnRestart_ActionPerformed
+
+  // end methods
+} //ende der klasse

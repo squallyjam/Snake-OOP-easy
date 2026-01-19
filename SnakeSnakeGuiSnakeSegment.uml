@@ -1,0 +1,49 @@
+﻿[Files]
+File0=SnakeSegment.java
+File1=SnakeGui.java
+File2=Snake.java
+
+[Box:  - Snake]
+X=41
+Y=534
+MinVis=0
+ShowParameter=4
+SortOrder=0
+ShowIcons=1
+
+[Box:  - SnakeGui]
+X=47
+Y=0
+MinVis=0
+ShowParameter=4
+SortOrder=0
+ShowIcons=1
+
+[Box:  - SnakeSegment]
+X=80
+Y=1135
+MinVis=0
+ShowParameter=4
+SortOrder=0
+ShowIcons=1
+
+[Diagram]
+Comments=0
+OffsetX=0
+OffsetY=0
+Visibility=0
+ShowParameter=4
+SortOrder=0
+ShowIcons=1
+ShowConnections=0
+Fontname=Segoe UI
+Fontsize=12
+ShowObjectDiagram=0
+
+[Connections]
+V0=Snake#SnakeSegment#Aggregation####0#0#0###0#0
+V1=SnakeGui#Snake#AssociationDirected####0#0#0###0#0
+
+[Interactive]
+I0=
+
