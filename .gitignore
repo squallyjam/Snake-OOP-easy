@@ -1,0 +1,11 @@
+# Compiled Java bytecode
+*.class
+
+# Editor backup files
+*.~ava
+*.~fm
+*~
+
+# IDE
+.idea/
+*.iml
